@@ -358,7 +358,7 @@ thead th {
 
 tbody tr:last-child td { border-bottom: none; }
 
-tr.ours-row td { background: var(--bg-alt); font-weight: 700; color: var(--text-primary); }
+tr.ours-row td { background: var(--bg-alt); color: var(--text-primary); }
 tr.ours-row td:first-child { border-left: 3px solid var(--accent); }
 
 .group-header th { text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 4px; }

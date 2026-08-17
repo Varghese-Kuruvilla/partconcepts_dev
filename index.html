@@ -20,7 +20,7 @@
       <p class="hero-blurb">
         PARTCONCEPTS encodes textual part descriptions (e.g. &lsquo;left ear&rsquo;) into compact tokens trained to
         attend to the correct part region in an image. The resulting localization sets a new state-of-the-art on
-        open-vocabulary and instance-level part segmentation, and directly enables fine-grained, part-level
+        open-vocabulary part segmentation, and directly enables fine-grained, part-level
         instruction following in text-to-image generation.
       </p>
 
@@ -141,7 +141,7 @@
         </div>
         <div class="prose">
           <p>
-            To keep the base model's generative capability intact, training combines this localization loss with
+            To keep the base model's generative capability intact, training combines the localization loss with
             the standard flow-matching (denoising) loss: <code class="inline">L = L_dice + &lambda; &middot; L_flow</code>.
             The weight &lambda; trades off localization sharpness against generation fidelity (see paper for the
             full ablation study).
@@ -240,9 +240,7 @@
 
         <h3>4.1 &middot; Open-vocabulary part segmentation (OVPS)</h3>
         <p>
-          Part segmentation masks are extracted directly from PARTCONCEPT attention maps in a single mmDiT forward
-          pass &mdash; no iterative sampling required. On the standard OVPS benchmark, PARTCONCEPTS outperforms
-          dedicated segmentation baselines across almost every split, in both the zero-shot and cross-dataset
+          On the standard OVPS benchmark, PARTCONCEPTS outperforms dedicated segmentation baselines across almost every split, in both the zero-shot and cross-dataset
           transfer settings.
         </p>
 
@@ -299,7 +297,7 @@
 
         <h3>4.2 &middot; Fine-grained part <em>instance</em> segmentation</h3>
         <p>
-          OVPS turns out to be too coarse for precise grounding: it removes spatial descriptors and collapses
+          Standard datasets used for OVPS turn out to be too coarse for precise grounding: they remove spatial descriptors and collapse
           distinct instances such as &lsquo;left hand&rsquo; and &lsquo;right hand&rsquo; into a single
           &lsquo;hand&rsquo; class. The original <strong>Pascal-Part</strong> benchmark retains these fine-grained,
           spatially-identified instances, and is a substantially harder test of spatial disambiguation &mdash;
