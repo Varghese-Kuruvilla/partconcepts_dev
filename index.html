@@ -1,0 +1,367 @@
+<title>PARTCONCEPTS</title>
+<meta name="description" content="PARTCONCEPTS: A Unified Mechanism for Fine-Grained Part Localization and Generation. NeurIPS 2026 submission.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232a78d6'/%3E%3Crect x='20' y='20' width='26' height='26' rx='5' fill='white' opacity='0.95'/%3E%3Crect x='54' y='20' width='26' height='26' rx='5' fill='white' opacity='0.55'/%3E%3Crect x='20' y='54' width='26' height='26' rx='5' fill='white' opacity='0.55'/%3E%3Crect x='54' y='54' width='26' height='26' rx='5' fill='white' opacity='0.95'/%3E%3C/svg%3E">
+
+<meta property="og:title" content="PARTCONCEPTS">
+<meta property="og:description" content="A unified mechanism for fine-grained part localization and generation in text-to-image diffusion models.">
+<meta property="og:image" content="assets/img/fig1_teaser.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="assets/css/style.css">
+
+<!-- NOTE: this paper is currently an anonymous NeurIPS 2026 submission under double-blind
+     review. Author names, affiliations, the Code and arXiv links, and the BibTeX entry
+     below are placeholders — fill them in once the paper is de-anonymized / accepted.
+     Also double-check your venue's policy on public project pages during review before
+     sharing this link. -->
+
+<header class="hero">
+  <div class="container">
+    <div>
+      <span class="review-note-inline">Anonymous submission &middot; under double-blind review</span>
+      <span class="venue-badge">NeurIPS 2026 &#127881;</span>
+      <h1>PARTCONCEPTS</h1>
+      <p class="subtitle">A Unified Mechanism for Fine-Grained Part Localization and Generation</p>
+
+      <p class="hero-blurb">
+        PARTCONCEPTS encodes textual part descriptions (e.g. &lsquo;left ear&rsquo;) into compact tokens trained to
+        attend to the correct part region in an image. The resulting localization sets a new state-of-the-art on
+        open-vocabulary and instance-level part segmentation, and directly enables fine-grained, part-level
+        instruction following in text-to-image generation.
+      </p>
+
+      <div class="btn-row">
+        <a class="btn" href="#bibtex">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          BibTeX
+        </a>
+        <span class="btn disabled">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg>
+          Code
+        </span>
+        <span class="btn disabled">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>
+          arXiv
+        </span>
+      </div>
+      <p class="coming-soon-note">Code and arXiv links coming soon</p>
+    </div>
+
+    <div class="hero-visual">
+      <video autoplay muted loop playsinline aria-label="Animated overview of PARTCONCEPTS: fine-grained part instruction following and open-vocabulary part segmentation examples.">
+        <source src="assets/video/hero_teaser.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Abstract -->
+  <section id="abstract">
+    <div class="container">
+      <div class="authors-block">
+        <p class="authors">Anonymous Author(s)</p>
+        <p class="affil">Affiliation withheld for double-blind review</p>
+        <p class="review-note">Author names, code, and arXiv links will be added after the review process concludes.</p>
+      </div>
+
+      <figure class="figure-card figure-block">
+        <img src="assets/img/fig1_teaser.png" alt="PARTCONCEPTS teaser: cross-attention maps in diffusion models, open-vocabulary part segmentation comparison, and part instruction following in T2I generation.">
+        <figcaption class="figure-caption">
+          <span class="fig-num">Figure 1.</span> Cross-attention maps of state-of-the-art diffusion models reveal that they lack fine-grained part understanding <strong>(a)</strong>. PARTCONCEPTS addresses this with a unified mechanism for fine-grained part localization <strong>(b)</strong> and generation <strong>(c)</strong>.
+        </figcaption>
+      </figure>
+
+      <h2>Abstract</h2>
+      <div class="prose">
+        <p>
+          While text-to-image (T2I) diffusion models exhibit strong semantic disentanglement at the object level,
+          they struggle to localize fine-grained object parts. Although the latent visual features in these models
+          are sufficiently fine-grained, the text&ndash;image interaction (cross-attention) fails to effectively
+          exploit this information. This results in coarse and ambiguous localization, particularly for spatially
+          distinct components such as &lsquo;left&rsquo; and &lsquo;right&rsquo; limbs.
+        </p>
+        <p>
+          To address this limitation, we introduce <strong>PARTCONCEPTS</strong>, a mechanism that encodes textual
+          part descriptions into compact, learnable representations. These PARTCONCEPT tokens are trained to
+          selectively attend to their corresponding part regions in the image. To evaluate the part-level
+          understanding of PARTCONCEPT tokens, we first probe their effectiveness for <em>part segmentation</em>.
+          We then evaluate whether the improved localization enables fine-grained <em>instruction following</em>
+          in T2I generation.
+        </p>
+        <p>
+          On the standard Open-Vocabulary Part Segmentation (OVPS) benchmark, our method outperforms dedicated
+          segmentation baselines, establishing a new state-of-the-art. We further evaluate on the more complex
+          Pascal-Part benchmark for part <em>instance</em> segmentation, which contains fine-grained spatial
+          annotations (e.g. &lsquo;left lower arm&rsquo;) &mdash; here we outperform all baselines by a very
+          significant margin. Finally, our qualitative and quantitative results show that this strong localization
+          directly enables fine-grained instruction following in T2I generation: textual attributes (e.g., color)
+          inherently bind to the correct PARTCONCEPT, without any explicit attribute-control mechanism. This
+          indicates that PARTCONCEPT tokens compose seamlessly with other text tokens, highlighting their
+          applicability for fine-grained, text-based generative control.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Method -->
+  <section id="method" class="alt">
+    <div class="container">
+      <h2>Method</h2>
+      <p class="section-intro">
+        Given an input text prompt with part phrases (e.g., &lsquo;left ear&rsquo;), our goal is to make those
+        phrases attend strongly to the correct part regions in the image &mdash; enabling both precise part-level
+        localization and, consequently, fine-grained instruction following in T2I generation.
+      </p>
+
+      <div class="method-block">
+        <span class="method-number">3.1 &middot; The PARTCONCEPT encoder</span>
+        <h3>Encoding textual part descriptions into PARTCONCEPTs</h3>
+        <div class="figure-card figure-block">
+          <img src="assets/img/fig2_method.png" alt="Diagram of the PARTCONCEPT encoder: text prompt with part phrases is tokenized, passed through the base text encoder, then through three LoRA-adapted layers to produce a pooled PARTCONCEPT embedding.">
+          <figcaption class="figure-caption">
+            <span class="fig-num">Figure 2.</span> Given an input prompt with part phrases (e.g. &lsquo;left ear&rsquo;), we encode each phrase into a PARTCONCEPT embedding trained to attend to its image region. The base T2I model conditions the mmDiT on intermediate text-encoder outputs (layer L); we extend the encoder with three additional layers (L+1, L+2, L+3) to form the PARTCONCEPT encoder, training only a LoRA over them so the resulting embedding stays close to the text embedding space.
+          </figcaption>
+        </div>
+        <div class="prose">
+          <p>
+            Cross-attention maps from FLUX.2 show that part phrases tokenize into discrete tokens that attend
+            coarsely to disparate image regions &mdash; spatial descriptors like &lsquo;left&rsquo; and
+            &lsquo;right&rsquo; are especially diffuse. We instead replace each part phrase with a single
+            <strong>PARTCONCEPT</strong> token, encoded by a lightweight extension of the base text encoder. Because
+            only a LoRA is trained on top of layers initialized from the base encoder, the PARTCONCEPT embedding
+            does not drift far from the text embedding space &mdash; which is what lets it preserve the model's
+            generative priors while gaining strong spatial grounding.
+          </p>
+        </div>
+      </div>
+
+      <div class="method-block">
+        <span class="method-number">3.2 &middot; Training objective</span>
+        <h3>The localization and generative objectives</h3>
+        <div class="figure-card figure-block compact">
+          <img src="assets/img/fig3_localization.png" alt="Diagram of the localization objective: PARTCONCEPT attention maps are extracted from mmDiT layers, concatenated with the clean input image in a U-Net style decoder, and supervised with a Dice loss against the ground-truth part mask, alongside a flow loss for the generative objective.">
+          <figcaption class="figure-caption">
+            <span class="fig-num">Figure 3.</span> We pass the interleaved text and PARTCONCEPT tokens through the mmDiT and extract layer-wise PARTCONCEPT cross-attention maps. A lightweight multi-scale decoder combines these maps with the clean input image (U-Net style) to predict a part segmentation mask, supervised with a Dice loss. A parallel flow (denoising) loss preserves the base model's generative capability.
+          </figcaption>
+        </div>
+        <div class="prose">
+          <p>
+            To keep the base model's generative capability intact, training combines this localization loss with
+            the standard flow-matching (denoising) loss: <code class="inline">L = L_dice + &lambda; &middot; L_flow</code>.
+            The weight &lambda; trades off localization sharpness against generation fidelity (see paper for the
+            full ablation study).
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section id="results">
+    <div class="container">
+      <h2>Results</h2>
+      <p class="section-intro">
+        We evaluate PARTCONCEPTS along two axes: how well it <em>localizes</em> parts (open-vocabulary and
+        instance-level part segmentation), and how that localization translates into <em>fine-grained instruction
+        following</em> in T2I generation.
+      </p>
+
+      <!-- Qualitative -->
+      <div class="result-group">
+        <div class="result-group-title">Qualitative results</div>
+        <p>
+          PARTCONCEPTS generalizes to <strong>novel part phrases</strong> unseen in training (<em>armrest</em>,
+          <em>left front wheel</em>, <em>wrist</em>) and to <strong>arbitrary attributes</strong> &mdash; even in
+          multi-part prompts, each attribute binds to its correct part. Dedicated segmentation models, meanwhile,
+          struggle to separate spatially-distinct instances such as &lsquo;left lower arm&rsquo; and &lsquo;right
+          upper arm&rsquo;. Browse examples for both generation and segmentation below.
+        </p>
+
+        <div class="gallery">
+          <div class="gallery-tabs">
+            <button class="gallery-tab active" data-target="gen">Generation</button>
+            <button class="gallery-tab" data-target="seg">Segmentation</button>
+          </div>
+
+          <div class="gallery-panel active" data-panel="gen">
+            <div class="gallery-viewport">
+              <div class="gallery-track">
+                <figure class="gallery-slide">
+                  <img src="assets/img/gallery/fig4_row1.jpg" alt="Generated images with PARTCONCEPT attention maps for 'left lower leg', 'right wrist', and 'left back leg'.">
+                  <figcaption><span class="fig-num">Fig. 4</span>Novel part phrases &lsquo;wrist&rsquo; and &lsquo;leg&rsquo; &mdash; PARTCONCEPT attention maps (right of each photo) show sharp, correctly localized attention.</figcaption>
+                </figure>
+                <figure class="gallery-slide">
+                  <img src="assets/img/gallery/fig4_row2.jpg" alt="Generated images with PARTCONCEPT attention maps for 'right ear', 'left front wheel', and 'left armrest'.">
+                  <figcaption><span class="fig-num">Fig. 4</span>&lsquo;Front wheel&rsquo; and &lsquo;armrest&rsquo; are not seen during training, yet localize and bind correctly.</figcaption>
+                </figure>
+                <figure class="gallery-slide">
+                  <img src="assets/img/gallery/fig4_row3.jpg" alt="Generated images with two PARTCONCEPTs per prompt: left arm on fire / right arm made of ice, and left foot blue sock / right foot green sock.">
+                  <figcaption><span class="fig-num">Fig. 4</span>Multi-part prompts: two PARTCONCEPTs in the same image, each attribute correctly bound to its own part.</figcaption>
+                </figure>
+              </div>
+            </div>
+            <button class="gallery-arrow prev" aria-label="Previous example">&lsaquo;</button>
+            <button class="gallery-arrow next" aria-label="Next example">&rsaquo;</button>
+            <div class="gallery-dots"></div>
+          </div>
+
+          <div class="gallery-panel" data-panel="seg">
+            <div class="gallery-col-headers" style="--cols:4;">
+              <span>Ground Truth</span>
+              <span class="ours">Ours</span>
+              <span>PartCATSeg (CVPR&rsquo;25)</span>
+              <span>LangHOPS (NeurIPS&rsquo;25)</span>
+            </div>
+            <div class="gallery-viewport">
+              <div class="gallery-track">
+                <figure class="gallery-slide">
+                  <img src="assets/img/gallery/fig6_row1.jpg" alt="Part instance segmentation comparison on a dog: Ground Truth, Ours, PartCATSeg, LangHOPS.">
+                  <figcaption><span class="fig-num">Fig. 6</span>Our method closely matches the ground-truth part boundaries.</figcaption>
+                </figure>
+                <figure class="gallery-slide">
+                  <img src="assets/img/gallery/fig6_row2.jpg" alt="Part instance segmentation comparison on a cow: Ground Truth, Ours, PartCATSeg, LangHOPS.">
+                  <figcaption><span class="fig-num">Fig. 6</span>Cleaner part boundaries around the head and ears than either baseline.</figcaption>
+                </figure>
+                <figure class="gallery-slide">
+                  <img src="assets/img/gallery/fig6_row3.jpg" alt="Part instance segmentation comparison on a BMX rider: Ground Truth, Ours, PartCATSeg, LangHOPS.">
+                  <figcaption><span class="fig-num">Fig. 6</span>Baselines merge &lsquo;left lower arm&rsquo; and &lsquo;right upper arm&rsquo; &mdash; ours keeps them separate.</figcaption>
+                </figure>
+                <figure class="gallery-slide">
+                  <img src="assets/img/gallery/fig6_row4.jpg" alt="Part instance segmentation comparison on an animal in leaves: Ground Truth, Ours, PartCATSeg, LangHOPS.">
+                  <figcaption><span class="fig-num">Fig. 6</span>Consistent part instance separation even under heavy occlusion.</figcaption>
+                </figure>
+              </div>
+            </div>
+            <button class="gallery-arrow prev" aria-label="Previous example">&lsaquo;</button>
+            <button class="gallery-arrow next" aria-label="Next example">&rsaquo;</button>
+            <div class="gallery-dots"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quantitative -->
+      <div class="result-group">
+        <div class="result-group-title">Quantitative results</div>
+
+        <h3>4.1 &middot; Open-vocabulary part segmentation (OVPS)</h3>
+        <p>
+          Part segmentation masks are extracted directly from PARTCONCEPT attention maps in a single mmDiT forward
+          pass &mdash; no iterative sampling required. On the standard OVPS benchmark, PARTCONCEPTS outperforms
+          dedicated segmentation baselines across almost every split, in both the zero-shot and cross-dataset
+          transfer settings.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <caption><span class="fig-num">Table 1.</span> Zero-shot evaluation on OVPS. IoU reported for seen / unseen categories and their harmonic mean (h-IoU).</caption>
+            <thead>
+              <tr class="group-header">
+                <th></th>
+                <th colspan="3">ADE20K</th>
+                <th colspan="3">PPS-116</th>
+                <th colspan="3">PartImageNet</th>
+              </tr>
+              <tr>
+                <th>Method</th>
+                <th>seen</th><th>unseen</th><th>h-IoU</th>
+                <th>seen</th><th>unseen</th><th>h-IoU</th>
+                <th>seen</th><th>unseen</th><th>h-IoU</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>VLPart</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>42.6</td><td>18.7</td><td>26.0</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+              <tr><td>ZSSeg+</td><td>43.2</td><td>27.8</td><td>33.9</td><td>54.4</td><td>19.0</td><td>28.2</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+              <tr><td>CLIPSeg</td><td>38.2</td><td>30.9</td><td>34.2</td><td>48.9</td><td>27.5</td><td>35.2</td><td>53.9</td><td>37.2</td><td>44.0</td></tr>
+              <tr><td>CAT-Seg</td><td>33.8</td><td>25.9</td><td>29.3</td><td>43.8</td><td>27.7</td><td>33.9</td><td>47.3</td><td>35.1</td><td>40.3</td></tr>
+              <tr><td>PartCLIPSeg</td><td>38.4</td><td>38.8</td><td>38.6</td><td>50.0</td><td>31.7</td><td>38.8</td><td>56.3</td><td>51.7</td><td>53.9</td></tr>
+              <tr><td>PartGLEE</td><td>51.3</td><td>35.3</td><td>41.8</td><td>57.4</td><td>27.4</td><td>37.1</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+              <tr><td>PartCATSeg <span style="color:var(--text-muted);font-weight:400;">(CVPR&rsquo;25)</span></td><td>53.1</td><td>47.2</td><td>50.0</td><td>57.5</td><td>44.9</td><td>50.4</td><td>73.8</td><td>71.5</td><td>72.7</td></tr>
+              <tr><td>LangHOPS <span style="color:var(--text-muted);font-weight:400;">(NeurIPS&rsquo;25)</span></td><td>49.3</td><td>49.7</td><td>49.5</td><td>59.2</td><td>46.5</td><td>52.1</td><td>71.9</td><td><strong>73.7</strong></td><td><strong>72.8</strong></td></tr>
+              <tr class="ours-row"><td>Ours</td><td><strong>53.4</strong></td><td><strong>61.9</strong></td><td><strong>57.3</strong></td><td><strong>65.0</strong></td><td><strong>49.7</strong></td><td><strong>56.3</strong></td><td><strong>75.4</strong></td><td>70.6</td><td>72.9</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <caption><span class="fig-num">Table 2.</span> Cross-dataset transfer: PartImageNet (out-of-distribution) and PartImageNet&rarr;PPS-116 (train&rarr;eval).</caption>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>PartImageNet (OOD)</th>
+                <th>PartImageNet &rarr; PPS-116</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>CLIPSeg</td><td>55.86</td><td>14.87</td></tr>
+              <tr><td>CAT-Seg</td><td>39.12</td><td>12.50</td></tr>
+              <tr><td>PartCLIPSeg</td><td>59.16</td><td>19.86</td></tr>
+              <tr><td>PartCATSeg</td><td>66.15</td><td>22.88</td></tr>
+              <tr class="ours-row"><td>Ours</td><td><strong>67.30</strong></td><td><strong>30.00</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>4.2 &middot; Fine-grained part <em>instance</em> segmentation</h3>
+        <p>
+          OVPS turns out to be too coarse for precise grounding: it removes spatial descriptors and collapses
+          distinct instances such as &lsquo;left hand&rsquo; and &lsquo;right hand&rsquo; into a single
+          &lsquo;hand&rsquo; class. The original <strong>Pascal-Part</strong> benchmark retains these fine-grained,
+          spatially-identified instances, and is a substantially harder test of spatial disambiguation &mdash;
+          here PARTCONCEPTS outperforms all baselines by a large margin.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption><span class="fig-num">Table 3.</span> Part instance segmentation with spatial identification (e.g. &lsquo;left lower arm&rsquo;, &lsquo;right upper arm&rsquo;) on the original Pascal-Part benchmark.</caption>
+            <thead>
+              <tr><th>Method</th><th>seen</th><th>unseen</th><th>h-IoU</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>PartCATSeg</td><td>33.2</td><td>35.5</td><td>34.3</td></tr>
+              <tr><td>LangHOPS</td><td>38.4</td><td>38.7</td><td>38.5</td></tr>
+              <tr class="ours-row"><td>Ours</td><td><strong>55.2</strong></td><td><strong>54.2</strong></td><td><strong>54.7</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BibTeX -->
+  <section id="bibtex" class="alt">
+    <div class="container">
+      <h2>BibTeX</h2>
+      <div class="prose">
+        <div class="bibtex-wrap">
+          <button class="copy-btn">Copy</button>
+          <pre>@inproceedings{anonymous2026partconcepts,
+  title     = {{PARTCONCEPTS}: A Unified Mechanism for Fine-Grained Part
+               Localization and Generation},
+  author    = {Anonymous},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026},
+  note      = {Under double-blind review}
+}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <p>Submitted to the 40th Conference on Neural Information Processing Systems (NeurIPS 2026).</p>
+    <p>Project page design inspired by the academic project-page format popularized by the Nerfies / Clarity templates.</p>
+  </div>
+</footer>
+
+<button class="to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+</button>
+
+<script src="assets/js/main.js"></script>
